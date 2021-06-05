@@ -19,22 +19,60 @@ namespace SharedTrip.Controllers
         }
         public HttpResponse All()
         {
+            if (!this.IsUserSignedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             var trips = tripService.GetAll();
             return this.View(trips);
         }
         public HttpResponse Details(string tripId)
         {
+            if (!this.IsUserSignedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             var trip = this.tripService.GetDetails(tripId);
             return this.View(trip);
         }
+        public HttpResponse AddUserToTrip(string tripId)
+        {
+            if (!this.IsUserSignedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
+            if (!this.IsUserSignedIn())
+            {
+                this.Redirect("/Users/Login");
+            }
+            if (!this.tripService.HasAvailableSeats(tripId))
+            {
+                return this.Error("No seats available!");
+            }
+            var userId = this.GetUserId();
+            if(!this.tripService.AddUserToTrip(userId, tripId))
+            {
+                return this.Redirect("/Trips/Details?tripId=" + tripId);
+            }    
+            return this.Redirect("/Trips/All");
+
+        }
         public HttpResponse Add()
         {
+            if (!this.IsUserSignedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             return this.View();
         }
         
         [HttpPost]
         public HttpResponse Add(AddTripInputModel input)
         {
+            if (!this.IsUserSignedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             if (string.IsNullOrEmpty(input.StartPoint))
             {
                 return this.Error("Start Point is requered!");

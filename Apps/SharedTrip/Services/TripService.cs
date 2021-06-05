@@ -17,7 +17,37 @@ namespace SharedTrip.Services
         {
             this.db = db;
         }
-        
+
+        public bool AddUserToTrip(string userId, string tripId)
+        {
+            var userInTrips = this.db.UserTrips.Any(x => x.UserId == userId && x.TripId == tripId);
+            if (userInTrips)
+            {
+                return false;
+            }
+            var userTrip = new UserTrip
+            {
+                UserId = userId,
+                TripId = tripId
+            };
+            this.db.UserTrips.Add(userTrip);
+            this.db.SaveChanges();
+            return true;
+        }
+
+        public bool HasAvailableSeats(string tripId)
+        {
+            var trip = this.db.Trips.Where(x => x.Id == tripId)
+                .Select(x => new { x.Seats, TakenSeats = x.UserTrips.Count() })
+                .FirstOrDefault();
+            var availableSeats = trip.Seats - trip.TakenSeats;
+            if (availableSeats <= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public void Create(AddTripInputModel trip)
         {
             var dbTrip = new Trip

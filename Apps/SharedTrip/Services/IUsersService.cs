@@ -12,5 +12,7 @@ namespace SharedTrip.Services
 
         bool IsEmailAvailable(string email);
 
+        
+
     }
 }
